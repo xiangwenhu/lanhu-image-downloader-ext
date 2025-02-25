@@ -37,6 +37,9 @@
     "onStartupFinished"
   ],
   "contributes": {
+    "webview": {
+      "contentSecurityPolicy": "default-src 'none'; style-src 'self'; script-src 'self'"
+    },
     "commands": [
       {
         "command": "extension.dirge.open-webview",

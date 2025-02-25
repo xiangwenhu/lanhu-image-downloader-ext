@@ -1,8 +1,9 @@
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import * as vscode from 'vscode'
+import { getWebViewContent, replaceResourcePaths } from '../utils/webview'
 
-let panel: vscode.WebviewPanel | undefined;
+let panel: vscode.WebviewPanel | undefined
 // const rootPath = vscode.workspace.workspaceFolders![0].uri.fsPath || '.'
 
 /**
@@ -17,12 +18,12 @@ export default async function openWebview(
 ) {
   console.info('context:', context)
   if (panel) {
-    vscode.window.showInformationMessage(`蓝湖图片下载页面 已经打开`);
+    vscode.window.showInformationMessage(`蓝湖图片下载页面 已经打开`)
     panel.webview.postMessage({
-      type: "init",
+      type: 'init',
       data: {
-        fsPath: uri.fsPath
-      }
+        fsPath: uri.fsPath,
+      },
     })
     return
   }
@@ -37,28 +38,28 @@ export default async function openWebview(
         enableScripts: true, // 启用JS，默认禁用
         retainContextWhenHidden: true, // webview被隐藏时保持状态，避免被重置
       },
-    );
+    )
 
     // 获取当前扩展的根目录路径
-    const extensionPath = context.extensionPath
+    // const extensionPath = context.extensionPath
 
     // 构造本地 HTML 文件的完整路径
-    const htmlFilePath = path.join(extensionPath, './dist/htmls', 'index.html')
-    const htmlContent = await fsp.readFile(htmlFilePath, 'utf-8')
+    const htmlFilePath = '/dist/htmls/index.html'
+    const htmlContent = getWebViewContent(context, htmlFilePath, panel)
 
     // 设置 Webview 的 HTML 内容
-    panel.webview.html = htmlContent;
+    panel.webview.html = htmlContent
 
     panel.webview.postMessage({
-      type: "init",
+      type: 'init',
       data: {
-        fsPath: uri.fsPath
-      }
+        fsPath: uri.fsPath,
+      },
     })
 
     panel.onDidDispose(() => {
-      panel = undefined;
-    });
+      panel = undefined
+    })
 
     panel.webview.onDidReceiveMessage(onDidReceiveMessage, panel.webview)
   }
