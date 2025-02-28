@@ -1,7 +1,7 @@
-import fsp from 'node:fs/promises'
 import path from 'node:path'
 import * as vscode from 'vscode'
-import { getWebViewContent, replaceResourcePaths } from '../utils/webview'
+import { WebviewAsyncMessenger } from '../utils/messagener'
+import { createWeViewContentFormUrl } from '../utils/webview'
 
 let panel: vscode.WebviewPanel | undefined
 // const rootPath = vscode.workspace.workspaceFolders![0].uri.fsPath || '.'
@@ -22,7 +22,7 @@ export default async function openWebview(
     panel.webview.postMessage({
       type: 'init',
       data: {
-        fsPath: uri.fsPath,
+        targetFolder: uri.fsPath,
       },
     })
     return
@@ -43,46 +43,41 @@ export default async function openWebview(
     // 获取当前扩展的根目录路径
     // const extensionPath = context.extensionPath
 
-    // 构造本地 HTML 文件的完整路径
-    const htmlFilePath = '/dist/htmls/index.html'
-    const htmlContent = getWebViewContent(context, htmlFilePath, panel)
+    // 生产使用： 构造本地 HTML 文件的完整路径
+    // const htmlFilePath = '/dist/htmls/index.html'
+    // const htmlContent = getWebViewContent(context, htmlFilePath, panel);
 
+    const htmlFilePath = '/dist/htmls/proxy.html'
+    // const htmlContent = getWebViewContent(context, htmlFilePath, panel)
+    const resourcePath = path.join(context.extensionPath, htmlFilePath)
+    const htmlContent = await createWeViewContentFormUrl(resourcePath, { $$url: 'http://localhost:5173' })
+
+    console.log('htmlContent:', htmlContent)
     // 设置 Webview 的 HTML 内容
     panel.webview.html = htmlContent
 
-    panel.webview.postMessage({
-      type: 'init',
-      data: {
-        fsPath: uri.fsPath,
-      },
+    let messenger = new WebviewAsyncMessenger({
+      autoGenerateRequestId: false,
     })
+    messenger.setContext({
+      panel,
+      context,
+      uri,
+    })
+
+    messenger.activate()
 
     panel.onDidDispose(() => {
       panel = undefined
+      messenger.setContext(undefined as any)
+      // @ts-ignore
+      messenger = undefined
     })
 
-    panel.webview.onDidReceiveMessage(onDidReceiveMessage, panel.webview)
+    // panel.webview.onDidReceiveMessage(onDidReceiveMessage, panel.webview)
   }
   catch (err: any) {
     vscode.window.showErrorMessage(`extension.demo.openWebview error:`, err.message)
     console.log('extension.demo.openWebview error', err)
   }
 }
-
-/**
- * 收到webview的消息
- */
-async function onDidReceiveMessage(this: vscode.Webview, message: any = {}) {
-  try {
-    console.log('onDidReceiveMessage:this', this)
-
-    console.log('onDidReceiveMessage:收到页面消息:', message)
-    if (!message || !message.type) {
-      vscode.window.showErrorMessage(`onDidReceiveMessage: 消息异常`, JSON.stringify(message))
-    }
-  }
-  catch (err: any) {
-    vscode.window.showErrorMessage(`执行脚本命令异常:`, err.message)
-    console.log('onDidReceiveMessage err:', err)
-  }
-};

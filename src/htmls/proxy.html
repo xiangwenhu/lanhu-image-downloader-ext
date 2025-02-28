@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebView Proxy</title>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0
+        }
+    </style>
+
+    <script src="https://unpkg.com/eruda@3.4.1/eruda.js"></script>
+    <script>
+        eruda.init();
+    </script>
+</head>
+
+<body>
+    <iframe src="$$url" width="100%" height="100%" id="ifr"></iframe>
+
+
+    <script>
+
+        const ifrEl = document.getElementById('ifr');
+        const vscode = acquireVsCodeApi();
+
+        function postMessageToVSCode(msg) {
+            console.log("vscode page post message to vs:", msg);
+            // const vscode = acquireVsCodeApi();
+            vscode.postMessage(msg, "*");
+        }
+
+        function onMessage(ev) {
+            const data = ev.data;
+            console.log("收到消息:", data);
+
+            if (!data.type) return;
+
+            if (data.source === "IframePage") {
+                //来自 被iframe嵌套的页面，转发给 vscode
+                postMessageToVSCode(data);
+
+            } else {
+                // 来自vscode, 转发给 被iframe嵌套的页面
+                ifrEl.contentWindow.postMessage(data, "*")
+            }
+        }
+
+        window.addEventListener("message", onMessage);
+
+
+
+    </script>
+
+
+</body>
+
+</html>
