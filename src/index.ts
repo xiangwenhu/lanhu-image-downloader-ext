@@ -1,7 +1,7 @@
 import { defineExtension } from 'reactive-vscode'
 import * as vscode from 'vscode'
-import imageDownload from './commands/imageDownload'
 import openWebview from './commands/openWebview'
+import terminal from './utils/terminal'
 
 const { activate, deactivate } = defineExtension((context) => {
   const openWebviewCommand = vscode.commands.registerCommand(
@@ -14,6 +14,8 @@ const { activate, deactivate } = defineExtension((context) => {
   console.warn('vscode.env.appRoot:', vscode.env.appRoot)
 
   context.subscriptions.push(openWebviewCommand)
+
+  terminal.log('你们好啊')
 })
 
 export { activate, deactivate }
