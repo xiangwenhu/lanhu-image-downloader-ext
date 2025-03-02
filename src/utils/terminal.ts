@@ -19,20 +19,12 @@ class TerminalLogger {
   private getOrCreateTerminal(): vscode.Terminal {
     if (!this.terminal || !vscode.window.terminals.find(t => t.name === this.terminalName)) {
       // 如果终端不存在，则创建一个新的
-      this.terminal = vscode.window.createTerminal(this.terminalName)
+      this.terminal = vscode.window.createTerminal({
+        name: this.terminalName,
+        shellPath: 'C:\\Windows\\System32\\cmd.exe',
+      })
     }
     return this.terminal
-  }
-
-  /**
-   * 输出日志到终端
-   * @param message 要输出的日志信息
-   */
-  log(message: string): void {
-    const terminal = this.getOrCreateTerminal()
-    // 直接发送日志消息，而不是使用 echo
-    terminal.sendText(message, true) // 第二个参数为 true 表示不添加到历史记录
-    terminal.show() // 确保终端可见
   }
 
   /**
@@ -53,6 +45,36 @@ class TerminalLogger {
       terminal.dispose()
       this.terminal = undefined
     }
+  }
+
+  private sendLog(...messages: any[]) {
+    const formattedMessages = messages.map(message =>
+      typeof message === 'object' ? JSON.stringify(message) : message,
+    ).join(' ')
+
+    const terminal = this.getOrCreateTerminal()
+
+    terminal.sendText(`${formattedMessages}`, false)
+  }
+
+  log(...messages: any[]) {
+    this.sendLog('\\x1B\[37m', ...messages) // 白色
+  }
+
+  info(...messages: any[]) {
+    this.sendLog('\\x1B\[32m', ...messages) // 绿色
+  }
+
+  warn(...messages: any[]) {
+    this.sendLog('\\x1B\[33m', ...messages) // 黄色
+  }
+
+  error(...messages: any[]) {
+    this.sendLog('\\x1B\[31m', ...messages) // 红色
+  }
+
+  sendText(...messages: any[]) {
+    this.sendLog(...messages)
   }
 }
 export default new TerminalLogger()

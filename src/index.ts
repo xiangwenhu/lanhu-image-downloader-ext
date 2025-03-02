@@ -15,7 +15,14 @@ const { activate, deactivate } = defineExtension((context) => {
 
   context.subscriptions.push(openWebviewCommand)
 
-  terminal.log('你们好啊')
+  terminal.sendText('\\x1b[31m这是红色文本\\x1b[0m')
+
+  terminal.log('log你们好啊')
+
+  terminal.info('info你们好啊')
+
+  terminal.warn('warn你们好啊')
+  terminal.error('error你们好啊')
 })
 
 export { activate, deactivate }
