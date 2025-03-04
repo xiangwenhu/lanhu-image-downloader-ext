@@ -1,12 +1,16 @@
 import type { BaseReqData, BaseResData, GlobalReqOptions } from 'async-messenger-js'
 import type { ConfigData } from '../../types'
+import type { BinDownloadOptions, DownloadOptions } from './index.types'
 import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { BaseAsyncMessenger, listener } from 'async-messenger-js'
+import { downloadByOptions } from 'lanhu-image-downloader'
 import * as vscode from 'vscode'
+import { TerminalLogger } from '../terminal'
 import { getCurrentWorkspaceFolder } from '../vscode'
 import { EnumActionType } from './index.types'
+import { optionsToEnv } from './util'
 
 export class WebviewAsyncMessenger extends BaseAsyncMessenger<{
   panel: vscode.WebviewPanel
@@ -77,7 +81,36 @@ export class WebviewAsyncMessenger extends BaseAsyncMessenger<{
   }
 
   @listener()
-  async [EnumActionType.StartDownload](data: BaseResData) {
+  async [EnumActionType.StartDownload](data: BaseResData<DownloadOptions>) {
     console.log('WebviewAsyncMessenger StartDownload', data)
+
+    const { context } = this.ctx!
+
+    const workspaceFolder = getCurrentWorkspaceFolder()!
+    const configPath = path.join(workspaceFolder, 'lanhu.config.json')
+
+    const options: BinDownloadOptions = {
+      ...data.data!,
+      configFilePath: configPath,
+    } as any
+    // downloadByOptions(options)
+
+    // const cmdPath = path.join(context.extensionPath, '/dist/cmd')
+    console.log('options:', options)
+
+    const envObj = optionsToEnv(options)
+
+    console.log('envObj:', envObj)
+
+    const terminal = new TerminalLogger({
+      // cwd: cmdPath,
+      env: envObj,
+      name: 'LanHu-Image-Downloader',
+    })
+
+    const scriptPath = path.join(context.extensionPath, '/node_modules/lanhu-image-downloader/dist/bin/index.js')
+    // const scriptPath = path.join(context.extensionPath, '/dist/cmd/index.js')
+    console.log('scriptPath:', scriptPath)
+    terminal.send(`node ${scriptPath}`)
   }
 }

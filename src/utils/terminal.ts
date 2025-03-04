@@ -1,15 +1,15 @@
 import * as vscode from 'vscode'
 
-class TerminalLogger {
-  private terminalName: string
+export class TerminalLogger {
   private terminal?: vscode.Terminal
+  private options: vscode.TerminalOptions
 
   /**
    * 构造函数
    * @param terminalName 终端名称
    */
-  constructor(terminalName: string = 'LanHu-Image-Download') {
-    this.terminalName = terminalName
+  constructor(options: vscode.TerminalOptions) {
+    this.options = options
   }
 
   /**
@@ -17,13 +17,13 @@ class TerminalLogger {
    * @returns 当前使用的终端实例
    */
   private getOrCreateTerminal(): vscode.Terminal {
-    if (!this.terminal || !vscode.window.terminals.find(t => t.name === this.terminalName)) {
-      // 如果终端不存在，则创建一个新的
-      this.terminal = vscode.window.createTerminal({
-        name: this.terminalName,
-        shellPath: 'C:\\Windows\\System32\\cmd.exe',
-      })
-    }
+    const terminal = vscode.window.terminals.find(t => t.name === this.options.name)
+    if (terminal)
+      terminal.dispose()
+
+    // 如果终端不存在，则创建一个新的
+    this.terminal = vscode.window.createTerminal(this.options)
+    this.terminal.show()
     return this.terminal
   }
 
@@ -40,41 +40,20 @@ class TerminalLogger {
    * 关闭并删除终端
    */
   dispose(): void {
-    const terminal = vscode.window.terminals.find(t => t.name === this.terminalName)
+    const terminal = vscode.window.terminals.find(t => t.name === this.options.name)
     if (terminal) {
       terminal.dispose()
       this.terminal = undefined
     }
   }
 
-  private sendLog(...messages: any[]) {
+  send(...messages: any[]) {
     const formattedMessages = messages.map(message =>
       typeof message === 'object' ? JSON.stringify(message) : message,
     ).join(' ')
 
     const terminal = this.getOrCreateTerminal()
 
-    terminal.sendText(`${formattedMessages}`, false)
-  }
-
-  log(...messages: any[]) {
-    this.sendLog('\\x1B\[37m', ...messages) // 白色
-  }
-
-  info(...messages: any[]) {
-    this.sendLog('\\x1B\[32m', ...messages) // 绿色
-  }
-
-  warn(...messages: any[]) {
-    this.sendLog('\\x1B\[33m', ...messages) // 黄色
-  }
-
-  error(...messages: any[]) {
-    this.sendLog('\\x1B\[31m', ...messages) // 红色
-  }
-
-  sendText(...messages: any[]) {
-    this.sendLog(...messages)
+    terminal.sendText(`${formattedMessages}`, true)
   }
 }
-export default new TerminalLogger()

@@ -12,13 +12,13 @@
   "homepage": "",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/xiangwenhu/lanhu-image-downloader-ext"
   },
   "bugs": {
-    "url": ""
+    "url": "https://github.com/xiangwenhu/lanhu-image-downloader-ext"
   },
   "sponsor": {
-    "url": ""
+    "url": "https://github.com/xiangwenhu/lanhu-image-downloader-ext"
   },
   "categories": [
     "Other"
@@ -62,20 +62,21 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --external vscode",
-    "dev": "nr build --watch --sourcemap",
+    "build": "cross-env NODE_ENV=production tsup src/index.ts --external vscode",
+    "dev": "cross-env NODE_ENV=development nr build --watch --sourcemap",
     "prepare": "nr update",
     "update": "vscode-ext-gen --output src/generated/meta.ts",
     "lint": "eslint .",
     "vscode:prepublish": "nr build",
     "publish": "vsce publish --no-dependencies",
-    "pack": "vsce package --no-dependencies",
+    "pack": "vsce package",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "release": "bumpp && nr publish"
   },
   "dependencies": {
-    "async-messenger-js": "^0.0.6"
+    "async-messenger-js": "^0.0.6",
+    "lanhu-image-downloader": "file://D://projects//github-my//lanhu-image-downloader//lanhu-image-downloader-0.0.1012.tgz"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.2.1",
@@ -84,6 +85,7 @@
     "@types/vscode": "^1.97.0",
     "@vscode/vsce": "^3.2.2",
     "bumpp": "^10.0.3",
+    "cross-env": "^7.0.3",
     "eslint": "^9.20.1",
     "esno": "^4.8.0",
     "pnpm": "^10.4.1",

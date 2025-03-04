@@ -6,3 +6,7 @@
 
 ## vscode插件资料
 1. https://code.visualstudio.com/api/extension-guides/webview
+
+## 打包
+1. 使用 npm install
+2. 新起终端 输入 vsce package

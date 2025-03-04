@@ -1,10 +1,31 @@
 import path from 'node:path'
+import process from 'node:process'
 import * as vscode from 'vscode'
+import { logger } from '../utils/logger'
 import { WebviewAsyncMessenger } from '../utils/messagener'
-import { createWeViewContentFormUrl } from '../utils/webview'
+import { createWeViewContentFormUrl, getWebViewContent } from '../utils/webview'
 
 let panel: vscode.WebviewPanel | undefined
 // const rootPath = vscode.workspace.workspaceFolders![0].uri.fsPath || '.'
+
+async function getHTMLContent(context: vscode.ExtensionContext, panel: vscode.WebviewPanel) {
+  const nodeEnv = process.env.NODE_ENV
+
+  console.log('nodeEnv:', nodeEnv)
+  if (nodeEnv === 'development') {
+    console.log('development Proxy 开发调试模式:')
+    // 测试使用：
+    const htmlFilePath = '/dist/htmls/proxy.html'
+    const resourcePath = path.join(context.extensionPath, htmlFilePath)
+    const htmlContent = await createWeViewContentFormUrl(resourcePath, { $$url: 'http://localhost:5173' })
+    return htmlContent
+  }
+
+  const htmlFilePath = '/dist/htmls/index.html'
+  const htmlContent = getWebViewContent(context, htmlFilePath, panel)
+
+  return htmlContent
+}
 
 /**
  * 打开webview
@@ -40,19 +61,9 @@ export default async function openWebview(
       },
     )
 
-    // 获取当前扩展的根目录路径
-    // const extensionPath = context.extensionPath
+    const htmlContent = await getHTMLContent(context, panel)
 
-    // 生产使用： 构造本地 HTML 文件的完整路径
-    // const htmlFilePath = '/dist/htmls/index.html'
-    // const htmlContent = getWebViewContent(context, htmlFilePath, panel);
-
-    const htmlFilePath = '/dist/htmls/proxy.html'
-    // const htmlContent = getWebViewContent(context, htmlFilePath, panel)
-    const resourcePath = path.join(context.extensionPath, htmlFilePath)
-    const htmlContent = await createWeViewContentFormUrl(resourcePath, { $$url: 'http://localhost:5173' })
-
-    console.log('htmlContent:', htmlContent)
+    // console.log('htmlContent:', htmlContent)
     // 设置 Webview 的 HTML 内容
     panel.webview.html = htmlContent
 

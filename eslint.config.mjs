@@ -10,6 +10,7 @@ export default antfu(
   {
     rules: {
       'no-console': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
     },
   },
 )
