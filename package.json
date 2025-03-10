@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "async-messenger-js": "^0.0.6",
-    "lanhu-image-downloader": "file://D://projects//github-my//lanhu-image-downloader//lanhu-image-downloader-0.0.1012.tgz"
+    "lanhu-image-downloader": "file://D://projects//github-my//lanhu-image-downloader//lanhu-image-downloader-0.0.10014.tgz"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.2.1",
