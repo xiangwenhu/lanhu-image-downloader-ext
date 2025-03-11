@@ -1,8 +1,8 @@
 {
-  "publisher": "dirge",
+  "publisher": "cloud-dirge",
   "name": "lanhu-image-downloader-ext",
   "displayName": "蓝湖图片下载vscode插件",
-  "version": "0.0.1000",
+  "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@10.4.1",
   "description": "",
@@ -75,8 +75,8 @@
     "release": "bumpp && nr publish"
   },
   "dependencies": {
-    "async-messenger-js": "^0.0.6",
-    "lanhu-image-downloader": "file://D://projects//github-my//lanhu-image-downloader//lanhu-image-downloader-0.0.10014.tgz"
+    "async-messenger-js": "^0.0.8",
+    "lanhu-image-downloader": "file://D://projects//github-my//lanhu-image-downloader//lanhu-image-downloader-0.0.2.tgz"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.2.1",
